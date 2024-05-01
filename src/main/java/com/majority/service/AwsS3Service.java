@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.majority.configuration.AwsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,15 +42,17 @@ public class AwsS3Service {
         return "funcionou";
     }
 
-    public S3Object getImage(){
+    public byte[] getImage(){
         AmazonS3 awsS3 = awsConfig.amazonS3();
 
+        S3Object getObjectResult = awsS3.getObject(bucketName, "Teste2");
+        S3ObjectInputStream inputStream = getObjectResult.getObjectContent();
+
         try {
-            URL urlObject = new URL("https://majority-project.s3.sa-east-1.amazonaws.com/Teste2");
-            PresignedUrlDownloadRequest presignedUrlDownloadRequest =  new PresignedUrlDownloadRequest(urlObject);
-            return awsS3.download(presignedUrlDownloadRequest).getS3Object();
-        } catch (MalformedURLException e) {
+            return IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 }
