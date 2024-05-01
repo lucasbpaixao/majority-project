@@ -88,7 +88,7 @@ public class ProductRestController {
     }
 
     @GetMapping("get-image")
-    public S3Object getImage(){
+    public byte[] getImage(){
         return awsS3Service.getImage();
     }
 }
