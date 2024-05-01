@@ -1,7 +1,6 @@
 package com.majority.service;
 
 import com.amazonaws.services.s3.model.PresignedUrlDownloadRequest;
-import com.majority.utils.MultipartImage;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
