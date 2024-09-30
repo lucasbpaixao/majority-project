@@ -64,13 +64,20 @@ public class Product {
         this.price = price;
     }
 
-
     public List<String> getKeywords() {
         return keywords;
     }
 
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
+    }
+
+    public List<Image> getImages() {
+        return this.images;
+    }
+
+    public void addImage(Image image){
+        this.images.add(image);
     }
 
     @Override

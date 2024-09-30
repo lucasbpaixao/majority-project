@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -28,9 +29,10 @@ public class AwsS3Service {
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public String saveImage(byte[] image){
+    public String saveImage(byte[] image, Long productId, String productName, int position, String extension){
         AmazonS3 awsS3 = awsConfig.amazonS3();
-        File file = new File("Teste2.jpeg");
+        String filename = productId + "_" + productName.replaceAll(" ","_") + position + "." + extension;
+        File file = new File(filename);
         try {
             FileOutputStream os = new FileOutputStream(file);
             os.write(image);
@@ -38,14 +40,14 @@ public class AwsS3Service {
             throw new RuntimeException(e);
         }
 
-        awsS3.putObject(bucketName, "Teste2", file);
-        return "funcionou";
+        awsS3.putObject(bucketName, filename.replace("." + extension,""), file);
+        return filename.replace("." + extension,"");
     }
 
-    public byte[] getImage(){
+    public byte[] getImage(String objectName){
         AmazonS3 awsS3 = awsConfig.amazonS3();
 
-        S3Object getObjectResult = awsS3.getObject(bucketName, "Teste2");
+        S3Object getObjectResult = awsS3.getObject(bucketName, objectName);
         S3ObjectInputStream inputStream = getObjectResult.getObjectContent();
 
         try {

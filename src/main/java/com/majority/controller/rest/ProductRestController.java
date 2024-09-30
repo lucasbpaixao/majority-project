@@ -2,10 +2,13 @@ package com.majority.controller.rest;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.majority.model.Image;
 import com.majority.model.Product;
+import com.majority.repository.ImageRepository;
 import com.majority.repository.ProductRepository;
 import com.majority.service.AwsS3Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +28,10 @@ public class ProductRestController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
     @Autowired
     private AwsS3Service awsS3Service;
     @GetMapping("/products")
@@ -79,16 +87,32 @@ public class ProductRestController {
     }
 
     @PostMapping("save-image")
-    public String saveImage(@RequestParam MultipartFile image){
+    public String saveImage(@RequestParam MultipartFile image, @RequestParam Long productId, @RequestParam String productName){
         try {
-            return awsS3Service.saveImage(image.getBytes());
+            Optional<Product> resultGetProduct = productRepository.findById(productId);
+            if(resultGetProduct.isPresent()){
+                Product product = resultGetProduct.get();
+
+                int position = product.getImages().size();
+                String extension = image.getContentType().replace("image/","");
+                String objectName = awsS3Service.saveImage(image.getBytes(),productId,productName,position,extension);
+
+                Image newImage = new Image(objectName, objectName+extension, extension, position);
+                imageRepository.save(newImage);
+
+                product.addImage(newImage);
+                productRepository.saveAndFlush(product);
+                return objectName;
+            } else  {
+                return null;
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @GetMapping("get-image")
-    public byte[] getImage(){
-        return awsS3Service.getImage();
+    public byte[] getImage(@RequestParam String objectName){
+        return awsS3Service.getImage(objectName);
     }
 }
