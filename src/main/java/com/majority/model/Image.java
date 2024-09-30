@@ -1,18 +1,26 @@
 package com.majority.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String nome;
+    private String name;
     private String imagePath;
     private String extension;
+    private int imageOrder;
+
+    public Image() {
+    }
+
+    public Image(String name, String imagePath, String extension, int imageOrder) {
+        this.name = name;
+        this.imagePath = imagePath;
+        this.extension = extension;
+        this.imageOrder = imageOrder;
+    }
 
     public long getId() {
         return id;
@@ -22,12 +30,12 @@ public class Image {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImagePath() {
@@ -44,6 +52,14 @@ public class Image {
 
     public void setExtension(String extension) {
         this.extension = extension;
+    }
+
+    public int getImageOrder() {
+        return imageOrder;
+    }
+
+    public void setImageOrder(int imageOrder) {
+        this.imageOrder = imageOrder;
     }
 
 }
